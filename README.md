@@ -13,8 +13,8 @@ cd projet_DL_photoreceptor
 ### Téléchargment des données 
 
 ```bash
-scp -r pedago-ngs:/localdata/pandata/students/Projet_12_IA/data_img.tar.gz data
-tar -xzf data/data_img.tar.gz
+scp -r pedago-ngs:/localdata/pandata/students/Projet_12_IA/data_img.tar.gz data/
+tar -xzf data/data_img.tar.gz -C data/
 ```
 
 ### Mise en place de l'environnement 
