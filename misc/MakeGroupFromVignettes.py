@@ -1,10 +1,9 @@
 #! /usr/bin/env python3
-from os import mkdir, listdir 
+from os import mkdir, listdir
 from os.path import splitext, exists
 from shutil import copy
-from sys import  exit
 from argparse import ArgumentParser, Namespace
-
+from sys import exit
 
 def create_dir(dest:str) -> None:
 	if not exists(dest):
@@ -38,9 +37,9 @@ def copy_data(dict_groups:dict, source:str, dest:str) -> None:
 def handle_arguments() -> Namespace:
 	parser = ArgumentParser(prog = 'MakeGroupFromVignettes',
 	            description = 'Crée une arborescence de fichiers correspondant aux catégories de vignette')
-	parser.add_argument("-s", "--source", nargs=1, required=True, 
+	parser.add_argument("-s", "--source", required=True, 
 				help="path du dossier ou se situe les vignettes, doit exister")
-	parser.add_argument("-d", "--destination", nargs=1, required=True, 
+	parser.add_argument("-d", "--destination", required=True, 
 				help="path du dossier de destination")
 	args = parser.parse_args()
 	return args
@@ -48,7 +47,7 @@ def handle_arguments() -> Namespace:
 
 def main() -> None:
 	args = handle_arguments()
-	
+
 	if exists(args.source):
 		create_dir(args.destination)
 		grps = create_groups(args.source)
