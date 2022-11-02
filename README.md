@@ -23,6 +23,15 @@ scp -r pedago-ngs:/localdata/pandata/students/Projet_12_IA/data_img.tar.gz ./dat
 tar -xzf data/data_img.tar.gz -C ./data/
 ```
 
+### Rangement des données
+
+```bash
+# range les images en fonction de leurs categories/nb d'ommatidies 
+# usage :  MakeGroupFromVignettes [-h] -s SOURCE -d DESTINATION
+
+./misc/MakeGroupFromVignettes.py -s ./data/data_img/vignettes_manu_annot -d ./data/vignettes_manu_tidy  
+```
+
 ### Mise en place de l'environnement 
 
 À venir 🤠
