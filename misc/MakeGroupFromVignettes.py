@@ -2,8 +2,30 @@
 from os import mkdir, listdir
 from os.path import splitext, exists
 from shutil import copy
-from argparse import ArgumentParser, Namespace
-from sys import exit
+from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+
+
+DESCRIPTION = """
+This script is used to copy and tidy up ommatidia images folder and get a tree-like folder
+which each image is stored into the corresponding categories
+
+usage from the root of this project:
+	./misc/MakeGroupFromVignettes.py -s ./data/data_source/ -d ./data/data_destination/
+
+ex:
+#from
+data_source/
+	abc_1 def_3 ghi_4 jkl_3 mno_3	
+
+#to
+data_destination/
+	├──cat_1/
+	│	abc_1
+	├──cat_3/
+	│	def_3 jkl_3 mno_3
+	└──cat_4/
+		ghi_4
+"""
 
 def create_dir(dest:str) -> None:
 	if not exists(dest):
@@ -35,12 +57,13 @@ def copy_data(dict_groups:dict, source:str, dest:str) -> None:
 
 
 def handle_arguments() -> Namespace:
-	parser = ArgumentParser(prog = 'MakeGroupFromVignettes',
-	            description = 'Crée une arborescence de fichiers correspondant aux catégories de vignette')
+	parser = ArgumentParser(prog = 'MakeGroupFromVignettes', 
+							description = DESCRIPTION, 
+							formatter_class=RawTextHelpFormatter)
 	parser.add_argument("-s", "--source", required=True, 
-				help="path du dossier ou se situe les vignettes, doit exister")
+						help="path du dossier ou se situe les vignettes, doit exister")
 	parser.add_argument("-d", "--destination", required=True, 
-				help="path du dossier de destination")
+						help="path du dossier de destination")
 	args = parser.parse_args()
 	return args
 
@@ -53,7 +76,7 @@ def main() -> None:
 		grps = create_groups(args.source)
 		create_dir_groups(grps, args.destination)
 		copy_data(grps, args.source, args.destination)
-		print("done!")
+		print("job is done!")
 
 	else:
 		raise FileNotFoundError(f"{args.source} n'a pas été trouvé")
