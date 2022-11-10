@@ -1,3 +1,6 @@
+# +/- niveaux de gris mais ne pas borner en 0 ou en 255, car arrive souvent en pratique (mouches plus vieilles par exemple)
+# translations légères
+
 import PIL.ImageDraw as ImageDraw
 import PIL.Image as Image
 import math as m
@@ -9,23 +12,15 @@ import sys
 import shutil
 from PIL import ImageEnhance
 
-# def cart2pol(x, y):
-#     rho = np.sqrt(x**2 + y**2)
-#     phi = np.arctan2(y, x)
-#     return (rho, phi)
-
-# def pol2cart(rho, phi):
-#     x = rho * np.cos(phi)
-#     y = rho * np.sin(phi)
-#     return (x, y)
-
 n_img = 1000
 classes = [str(i) for i in range(10)]
 experiments = ['training', 'testing']
 img_extension = '.tif'
-augmented_prefix = 'ezaug_'
+augmented_prefix = 'aug_'
 dim = 60
 global_img_i = 0
+min_translation = 0
+max_translation = 5
 
 print('len(sys.argv):', len(sys.argv))
 
