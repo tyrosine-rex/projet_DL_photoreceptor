@@ -29,7 +29,7 @@ def get_targets(src:str, ext:str) -> list:
     list_ext = ext.split("|")
     targets = []
     for e in list_ext:
-        targets.extend(glob(f"{src}*{e}"))
+        targets.extend(glob(f"{src}/*{e}"))
     return targets
 
 
