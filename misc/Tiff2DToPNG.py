@@ -13,7 +13,6 @@ This script is used to copy and convert 2D TIFF image to PNG image.
 
 usage from the root of this project:
     ./misc/Tiff2DToPNG.py -s TIFF_folder -d PNG_folder/
-
 """
 
 def create_dir(dest: str) -> None:
