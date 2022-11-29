@@ -35,10 +35,12 @@ def get_targets(src:str, ext:str) -> list:
 
 def convert_to_png(tgts:str, dest:str) -> None:
     create_dir(dest)
-    for file in tgts:
+    n = len(tgts)
+    for i, file in enumerate(tgts):
         img = Image.open(file)
         newfile = f"{dest}/{splitext(basename(file))[0]}.png"
         img.save(newfile, format='PNG')
+        print(f"'{newfile}' is created ! ({i}/{n})", file=stderr)
 
 
 def handle_arguments() -> Namespace:
