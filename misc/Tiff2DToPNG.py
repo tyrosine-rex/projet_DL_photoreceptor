@@ -25,7 +25,7 @@ def create_dir(dest: str) -> None:
     makedirs(dest)
 
 
-def get_targets(src:str, ext:str) -> [str]:
+def get_targets(src:str, ext:str) -> list:
     list_ext = ext.split("|")
     targets = []
     for e in list_ext:
