@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-from os import mkdir, listdir
+from os import makedirs, listdir
 from os.path import splitext, exists
 from shutil import copy, rmtree
 from sys import stderr
@@ -31,12 +31,12 @@ ex:
 
 def create_dir(dest: str) -> None:
     """
-    Void function to handle os.mkdir()
+    Void function to handle os.makedirs()
     """
     if exists(dest):
         rmtree(dest)
         print(f"{dest} already exists, it was overwrite", file=stderr)
-    mkdir(dest)
+    makedirs(dest)
 
 
 def create_groups(source: str) -> dict:
@@ -79,7 +79,7 @@ def handle_arguments() -> Namespace:
     parser.add_argument(
         "-s", "--source",
         required=True,
-        help="Path of source folder that contain images. Must be exists",
+        help="Path of source folder that contain images. Must exists",
     )
     parser.add_argument(
         "-d", "--destination",
