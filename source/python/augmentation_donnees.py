@@ -12,8 +12,8 @@ import sys
 import shutil
 from PIL import ImageEnhance
 
-n_img_train = 3000
-n_img_test = 500
+n_img_train = 111
+n_img_test = 111
 classes = [str(i) for i in range(10)]
 experiments = ['training', 'testing']
 img_extension = '.png'
@@ -152,11 +152,13 @@ for expdir in experiments:
                     #     enhancer.enhance(factor).show(f"Sharpness {factor:f}")
                     # break
 
+                    final2 = Image.asarray(final)
+
                     # Save final image in the training directory and its mirror in the testing directory
                     if r.randint(0, 1) == 1:
-                        final.save(target_dir+'/'+augmented_prefix+experiments[1]+'/'+classdir+'/'+str(global_img_i)+'adt'+img_extension)
+                        final2.save(target_dir+'/'+augmented_prefix+experiments[1]+'/'+classdir+'/'+str(global_img_i)+'_conv'+img_extension)
                     else:
-                        ImageOps.mirror(final).save(target_dir+'/'+augmented_prefix+experiments[1]+'/'+classdir+'/'+str(global_img_i)+'amt'+img_extension)
+                        ImageOps.mirror(final2).save(target_dir+'/'+augmented_prefix+experiments[1]+'/'+classdir+'/'+str(global_img_i)+'_conv'+img_extension)
 
                     global_img_i += 1
 

@@ -19,14 +19,14 @@ def pol2cart(rho, phi):
     y = rho * np.sin(phi)
     return (x, y)
 
-n_img = 10
-# n_img = 1000
+#n_img = 10
+n_img = 1000
 
 experiments = ('training', 'testing')
 global_img_i = 0
 used_img_i = []
 # dim = 32
-dim = 200
+dim = 60
 x = dim/6
 dx = x/10
 width = dim/12
@@ -43,17 +43,17 @@ min_angle = -180
 max_angle = 180
 min_intensity = 127
 max_intensity = 255
-homogeneous = False
+homogeneous = True
 if homogeneous:
     min_intensity = max_intensity
-change_blur = True
+change_blur = False
 blur_radius = dim//40
-change_brightness = True
+change_brightness = False
 min_brightness_factor = 0.4
 max_brightness_factor = 1.0
 change_offset = True
 min_offset = 0
-max_offset = dim//20
+max_offset = dim//10
 
 centers = ((0+o, 0+o), (0+o, x+o), (x+o-dx, 1.5*x+o), (2*x+o-2*dx, 0+o), (2*x+o-2*dx, x+o), (2*x+o-2*dx, 2*x+o))
 
@@ -124,16 +124,18 @@ for experiment in experiments:
                 im = im.filter(ImageFilter.GaussianBlur(blur_radius))
             if change_offset:
                 im = ImageChops.offset(im, r.randint(min_offset, max_offset), r.randint(min_offset, max_offset))
-            if experiment == 'testing':
-                im = ImageOps.mirror(im)
             if change_brightness:
                 obj = ImageEnhance.Brightness(im)
                 im = obj.enhance(brightness_factor)
+            #if experiment == 'testing':
+            imm = ImageOps.mirror(im)
 
             try:
-                im.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+img_extension)
+                im.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
+                imm.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
             except:
                 os.mkdir('./'+n_circles)
-                im.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+img_extension)
+                im.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
+                imm.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
 
             global_img_i += 1
