@@ -20,11 +20,11 @@ def pol2cart(rho, phi):
     return (x, y)
 
 #n_img = 10
-n_img = 1000
+n_img = 30
 
-experiments = ('training', 'testing')
+# experiments = ('training', 'testing')
 global_img_i = 0
-used_img_i = []
+# used_img_i = []
 # dim = 32
 dim = 60
 x = dim/6
@@ -37,17 +37,17 @@ sigma = 2
 n_circles_det = [round(x) for x in np.random.normal(mu, sigma, n_img)]
 # n_circles_det = [4 for _ in range(n_img)]
 # print(n_circles_det)
-img_extension = '.tif'
+img_extension = '.png'
 o = -x
 min_angle = -180
 max_angle = 180
 min_intensity = 127
 max_intensity = 255
-homogeneous = True
+homogeneous = False
 if homogeneous:
     min_intensity = max_intensity
-change_blur = False
-blur_radius = dim//40
+change_blur = True
+blur_radius = 1.5
 change_brightness = False
 min_brightness_factor = 0.4
 max_brightness_factor = 1.0
@@ -64,78 +64,87 @@ for i in range(len(n_circles_det)):
         n_circles_det[i] = 6
 # print(n_circles_det)
 
-for experiment in experiments:
-    # Create testing / training directories if they don't exist
+# for experiment in experiments:
+    # # Create testing / training directories if they don't exist
+    # try:
+    #     os.mkdir(experiment)
+    # except:
+    #     pass
+
+# Create a directory for each class if it doesn't exist
+for i in range(10):
+    dir_to_create = './'+str(i)
+    # os.mkdir(dir_to_create)
     try:
-        os.mkdir(experiment)
-    except:
-        pass
+        os.mkdir(dir_to_create)
+    except FileExistsError:
+        print(dir_to_create, 'already exists')
 
-    # Create a directory for each class if it doesn't exist
-    for i in range(10):
+# For each biologically realistic class (i.e. 1 to 6 included)
+for k in range(1, 7):
+    # Randomly generate <n_img> vignettes from the existing ones
+    for img_i in range(n_img):
+        center_sizes = np.random.normal(width*0.8, width*0.05, 6)
+        # center_offsets = np.random.normal(0, dim//55, 6)
+        center_offsets = np.random.normal(0, 0, 6)
+
+        # offset = r.uniform(min_offset, max_offset)
+        offset = 0
+        # brightness_factor = r.uniform(min_brightness_factor, max_brightness_factor)
+        brightness_factor = 1
+
+        image = Image.new('L', (dim, dim))
+        draw = ImageDraw.Draw(image)
+
+        centers_translated = [(center[0] + dim/2 + offset, center[1] + dim/2 + offset) for center in centers]
+        # polygons = [[] for i in range(len(centers_translated))]
+        polygons = []
+
+        # Build a polygon around each center
+        for i in range(len(centers_translated)):
+            polygons.append([])
+            for j in range(1, n_vertices+1):
+                poly_point = []
+                for item in zip(pol2cart(center_sizes[i], j*2*m.pi/n_vertices), (centers_translated[i][0] + center_offsets[i], centers_translated[i][1])):
+                    poly_point.append(sum(item))
+                poly_point = tuple(poly_point)
+                polygons[i].append(poly_point)
+            polygons[i].append(polygons[i][0])
+            
+            # Ellipse
+            # w, h = dim/2.5, dim/2.5
+            # # shape = [(35, 20), (w - 10, h - 10)]
+            # shape = [(20*i,10*i), (w - 10, h - 10)]
+            # # polygons[i].append(shape)
+            # polygons.append(shape)
+
+        maliste = [True if i < k else False for i in range(len(centers))]
+        p = r.sample(maliste, len(maliste))
+        # print(sum(p), p)
+        for i in range(len(polygons)):
+            if p[i]:
+                draw.polygon((polygons[i]), fill=r.randint(min_intensity, max_intensity))
+                # draw.ellipse(polygons[i], fill=r.randint(min_intensity, max_intensity))
+        n_circles = str(sum(p))
+        # print(n_circles)
+
+        im = image.rotate(r.randint(min_angle, max_angle))
+        if change_blur:
+            im = im.filter(ImageFilter.GaussianBlur(blur_radius))
+        if change_offset:
+            im = ImageChops.offset(im, r.randint(min_offset, max_offset), r.randint(min_offset, max_offset))
+        if change_brightness:
+            obj = ImageEnhance.Brightness(im)
+            im = obj.enhance(brightness_factor)
+        #if experiment == 'testing':
+        imm = ImageOps.mirror(im)
+
         try:
-            os.mkdir('./'+experiment+'/'+str(i))
+            im.save('./'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
+            imm.save('./'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
         except:
-            pass
-    
-    for k in range(1, 7):
-        # Generate <n_img> vignettes
-        for img_i in range(n_img):
-            center_sizes = np.random.normal(width, width/8, 6)
-            center_offsets = np.random.normal(0, dim//55, 6)
+            os.mkdir('./'+n_circles)
+            im.save('./'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
+            imm.save('./'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
 
-            offset = r.uniform(min_offset, max_offset)
-            brightness_factor = r.uniform(min_brightness_factor, max_brightness_factor)
-
-            image = Image.new('L', (dim, dim))
-            draw = ImageDraw.Draw(image)
-
-            centers_translated = [(center[0] + dim/2 + offset, center[1] + dim/2 + offset) for center in centers]
-            # polygons = [[] for i in range(len(centers_translated))]
-            polygons = []
-
-            # Build a polygon around each center
-            for i in range(len(centers_translated)):
-                # for j in range(1, n_vertices+1):
-                #     poly_point = []
-                #     for item in zip(pol2cart(center_sizes[i], j*2*m.pi/n_vertices), (centers_translated[i][0] + center_offsets[i], centers_translated[i][1])):
-                #         poly_point.append(sum(item))
-                #     poly_point = tuple(poly_point)
-                #     polygons[i].append(poly_point)
-                # polygons[i].append(polygons[i][0])
-                w, h = dim/2.5, dim/2.5
-                # shape = [(35, 20), (w - 10, h - 10)]
-                shape = [(20*i,10*i), (w - 10, h - 10)]
-                # polygons[i].append(shape)
-                polygons.append(shape)
-
-            maliste = [True if i < k else False for i in range(len(centers))]
-            p = r.sample(maliste, len(maliste))
-            # print(sum(p), p)
-            for i in range(len(polygons)):
-                if p[i]:
-                    # draw.polygon((polygons[i]), fill=r.randint(min_intensity, max_intensity))
-                    draw.ellipse(polygons[i], fill=r.randint(min_intensity, max_intensity))
-            n_circles = str(sum(p))
-            # print(n_circles)
-
-            im = image.rotate(r.randint(min_angle, max_angle))
-            if change_blur:
-                im = im.filter(ImageFilter.GaussianBlur(blur_radius))
-            if change_offset:
-                im = ImageChops.offset(im, r.randint(min_offset, max_offset), r.randint(min_offset, max_offset))
-            if change_brightness:
-                obj = ImageEnhance.Brightness(im)
-                im = obj.enhance(brightness_factor)
-            #if experiment == 'testing':
-            imm = ImageOps.mirror(im)
-
-            try:
-                im.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
-                imm.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
-            except:
-                os.mkdir('./'+n_circles)
-                im.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
-                imm.save('./'+experiment+'/'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
-
-            global_img_i += 1
+        global_img_i += 1
