@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image, ImageFilter, ImageOps, ImageEnhance, ImageChops
 import random as r
 import os
+import sys
 
 def cart2pol(x, y):
     rho = np.sqrt(x**2 + y**2)
@@ -19,7 +20,20 @@ def pol2cart(rho, phi):
     y = rho * np.sin(phi)
     return (x, y)
 
-#n_img = 10
+if len(sys.argv) > 1:
+    print(sys.argv[1])
+    target_dir = './'+sys.argv[1]+'/'
+else:
+    target_dir = './'
+
+print('target_dir', target_dir)
+
+try:
+    os.mkdir(target_dir)
+except FileExistsError:
+    print('Directory already exists, nothing was done')
+
+homogeneous = True
 n_img = 30
 
 # experiments = ('training', 'testing')
@@ -37,22 +51,23 @@ sigma = 2
 n_circles_det = [round(x) for x in np.random.normal(mu, sigma, n_img)]
 # n_circles_det = [4 for _ in range(n_img)]
 # print(n_circles_det)
+
+
 img_extension = '.png'
 o = -x
 min_angle = -180
 max_angle = 180
-min_intensity = 127
+min_intensity = 100
 max_intensity = 255
-homogeneous = False
 if homogeneous:
     min_intensity = max_intensity
 change_blur = True
 blur_radius = 1.5
-change_brightness = False
+change_brightness = True
 min_brightness_factor = 0.4
 max_brightness_factor = 1.0
 change_offset = True
-min_offset = 0
+min_offset = -dim//10
 max_offset = dim//10
 
 centers = ((0+o, 0+o), (0+o, x+o), (x+o-dx, 1.5*x+o), (2*x+o-2*dx, 0+o), (2*x+o-2*dx, x+o), (2*x+o-2*dx, 2*x+o))
@@ -73,8 +88,7 @@ for i in range(len(n_circles_det)):
 
 # Create a directory for each class if it doesn't exist
 for i in range(10):
-    dir_to_create = './'+str(i)
-    # os.mkdir(dir_to_create)
+    dir_to_create = target_dir+str(i)
     try:
         os.mkdir(dir_to_create)
     except FileExistsError:
@@ -136,15 +150,19 @@ for k in range(1, 7):
         if change_brightness:
             obj = ImageEnhance.Brightness(im)
             im = obj.enhance(brightness_factor)
-        #if experiment == 'testing':
+        
         imm = ImageOps.mirror(im)
 
         try:
-            im.save('./'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
-            imm.save('./'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
+            if r.randint(0,1) == 1:
+                im.save(target_dir+n_circles+'/'+str(global_img_i)+''+img_extension)
+            else:
+                imm.save(target_dir+n_circles+'/'+str(global_img_i)+''+img_extension)
         except:
             os.mkdir('./'+n_circles)
-            im.save('./'+n_circles+'/'+str(global_img_i)+'d'+img_extension)
-            imm.save('./'+n_circles+'/'+str(global_img_i)+'m'+img_extension)
+            if r.randint(0,1) == 1:
+                im.save(target_dir+n_circles+'/'+str(global_img_i)+''+img_extension)
+            else:
+                imm.save(target_dir+n_circles+'/'+str(global_img_i)+''+img_extension)
 
         global_img_i += 1
