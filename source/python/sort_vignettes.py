@@ -2,7 +2,7 @@ import os
 import shutil
 import sys
 
-target_format = 'PNG'
+target_format = 'tif'
 
 if len(sys.argv) > 1:
 	vignettes_dir = sys.argv[1].rstrip('/')
