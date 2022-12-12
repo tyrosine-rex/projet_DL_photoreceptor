@@ -9,7 +9,7 @@ dependencies:
   - pandas
   - matplotlib
   - ipykernel
-  - tqdm
+  - jupyter
   - scikit-image
   - pytorch
   - torchvision
