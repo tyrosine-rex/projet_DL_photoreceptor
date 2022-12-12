@@ -1,0 +1,15 @@
+name: ommatidia_prjt_env
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.9
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - ipykernel
+  - tqdm
+  - scikit-image
+  - pytorch
+  - torchvision
