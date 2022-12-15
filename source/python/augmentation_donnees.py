@@ -12,33 +12,35 @@ import sys
 import shutil
 from PIL import ImageEnhance
 
-n_img_train = 111
-n_img_test = 111
+n_img_train = 1000
+n_img_test = 500
 classes = [str(i) for i in range(10)]
-experiments = ['training', 'testing']
+expdirs = ['training', 'testing']
 img_extension = '.png'
 augmented_prefix = 'aug_'
 dim = 60
-global_img_i = 0
+global_img_i_train = 0
+global_img_i_test = 0
 min_translation = 0
 max_translation = 5
+names = ['']
+name = ''
 
-print('len(sys.argv):', len(sys.argv))
+# print('sys.argv:', sys.argv)
 
+# Define directory to augment, which contains class folders
 if len(sys.argv) > 1:
     dir_to_augment = sys.argv[1]
 else:
     print('Please specify a directory containing experiments and classes')
-
 print('dir_to_augment:', dir_to_augment)
 
+# Define target directory
 if len(sys.argv) > 2:
-    dir_to_augment = sys.argv[2]
+    target_dir = sys.argv[2]
 else:
     target_dir = './data_aug_target'
-
-expdirs = experiments
-print(expdirs)
+print('target_dir:', target_dir)
 
 # Create target directory if it does not exist
 try:
@@ -46,18 +48,10 @@ try:
     os.mkdir(target_dir)
 except:
     pass
-# # Create a directory for each class at the root of the target directory
-# for i in range(len(classes)):
-#     try:
-#         print('Creating directory:', target_dir+'/'+str(classes[i]))
-#         os.mkdir(target_dir+'/'+str(classes[i]))
-#     except:
-#         pass
 
-for expdir in experiments:
+for expdir in expdirs:
     # Create testing / training directories
     tgt_dir = augmented_prefix+expdir
-    # full_tgt_dir = dir_to_augment+'/'+tgt_dir
     full_tgt_dir = target_dir+'/'+tgt_dir
     if not tgt_dir in expdirs:
         print('Creating directory:', full_tgt_dir)
@@ -74,97 +68,93 @@ for expdir in experiments:
     else:
         print('Target directory already exists:', full_tgt_dir)
 
-for expdir in experiments:
-    # Generate augmented image sets from a batch of training images
+# Generate augmented image sets from existing images
+for expdir in expdirs:
     if expdir == 'training':
         print('expdir:', expdir)
 
-        # For each class folder in training set, copy images and generate some if necessary
-        # for classdir in os.listdir(dir_to_augment+'/'+expdir):
+        # For each class folder, copy images and generate some if necessary
         for classdir in os.listdir(dir_to_augment):
-            # full_source_dir = dir_to_augment+'/'+expdir+'/'+classdir
             full_source_dir = dir_to_augment+'/'+classdir
-            # full_dest_dir = dir_to_augment+'/'+augmented_prefix+expdir+'/'+classdir
             full_dest_dir = target_dir+'/'+augmented_prefix+expdir+'/'+classdir
             print('source, dest:', full_source_dir, full_dest_dir)
 
-            # Generate images
+            # Get the paths of the existing images
             class_vignettes = os.listdir(full_source_dir)
             print(len(class_vignettes), 'class_vignettes')
+
+            # Copy all exsiting images into the augmented directory without any change
             if len(class_vignettes) > 0:
-                # Copy all exsiting images into the augmented directory
                 for img_file in class_vignettes:
                     vignette = Image.open(full_source_dir+'/'+img_file)
                     final = vignette
-                    final.save(target_dir+'/'+augmented_prefix+experiments[0]+'/'+classdir+'/'+str(global_img_i)+'o'+'d'+img_extension)
-                    ImageOps.mirror(final).save(target_dir+'/'+augmented_prefix+experiments[0]+'/'+classdir+'/'+str(global_img_i)+'o'+'m'+img_extension)
-                    # shutil.copyfile(full_source_dir+'/'+img_file, full_dest_dir+'/'+str(global_img_i)+img_extension)
-                    global_img_i += 1
+                    while name in names:
+                        name = str(r.randint(1000000,9999999))
+                    final.save(target_dir+'/'+augmented_prefix+expdirs[0]+'/'+classdir+'/'+str(name)+img_extension)
+                    names.append(name)
+
+                    # global_img_i_train += 1
 
                 # As long as there are not enough images, create new ones randomly
-                for i in range(len(class_vignettes), n_img_train):
+                if n_img_train > len(class_vignettes):
+                    for i in range(len(class_vignettes), n_img_train):
+                        # class_vignettes = os.listdir(full_source_dir)
+
+                        # Randomly choose an image
+                        idx_choice = r.randint(0, len(class_vignettes)-1)
+                        print(i, '(train) idx_choice', idx_choice)
+
+                        vignette = Image.open(full_source_dir+'/'+class_vignettes[idx_choice])
+                        
+                        # print(len(class_vignettes))
+                        # print(class_vignettes[idx_choice])
+                
+                        rotated = vignette.rotate(r.randint(-180, 180))
+                        final = rotated
+
+                        # Save final image in the training directory and its mirror in the testing directory
+                        while name in names:
+                            name = str(r.randint(1000000,9999999))
+
+                        if r.randint(0, 1) == 1:
+                            final.save(target_dir+'/'+augmented_prefix+expdirs[0]+'/'+classdir+'/'+str(name)+img_extension)
+                        else:
+                            ImageOps.mirror(final).save(target_dir+'/'+augmented_prefix+expdirs[0]+'/'+classdir+'/'+str(name)+img_extension)
+                        names.append(name)
+
+                        # global_img_i_train += 1
+
+                # Generate test images
+                for i in range(n_img_test):
                     # class_vignettes = os.listdir(full_source_dir)
 
                     # Randomly choose an image
                     idx_choice = r.randint(0, len(class_vignettes)-1)
-                    print(i, 'idx_choice', idx_choice)
+                    print(i, '(test) idx_choice', idx_choice)
 
                     vignette = Image.open(full_source_dir+'/'+class_vignettes[idx_choice])
                     
-                    print(len(class_vignettes))
-                    print(class_vignettes[idx_choice])
+                    # print(len(class_vignettes))
+                    # print(class_vignettes[idx_choice])
             
                     rotated = vignette.rotate(r.randint(-180, 180))
                     final = rotated
 
-                    # enhancer = ImageEnhance.Sharpness(final)
-                    # for i in range(4):
-                    #     factor = i
-                    #     enhancer.enhance(factor).show(f"Sharpness {factor:f}")
-                    # break
-
                     # Save final image in the training directory and its mirror in the testing directory
-                    # final.save(dir_to_augment+'/'+augmented_prefix+experiments[0]+'/'+classdir+'/'+str(global_img_i)+'d'+img_extension)
-                    # ImageOps.mirror(final).save(dir_to_augment+'/'+augmented_prefix+experiments[0]+'/'+classdir+'/'+str(global_img_i)+'m'+img_extension)
-                    final.save(target_dir+'/'+augmented_prefix+experiments[0]+'/'+classdir+'/'+str(global_img_i)+'ad'+img_extension)
-                    ImageOps.mirror(final).save(target_dir+'/'+augmented_prefix+experiments[0]+'/'+classdir+'/'+str(global_img_i)+'am'+img_extension)
+                    while name in names:
+                        name = str(r.randint(1000000,9999999))
 
-                    global_img_i += 1
-
-                for i in range(len(class_vignettes), n_img_test):
-                    # class_vignettes = os.listdir(full_source_dir)
-
-                    # Randomly choose an image
-                    idx_choice = r.randint(0, len(class_vignettes)-1)
-                    print(i, 'idx_choice', idx_choice)
-
-                    vignette = Image.open(full_source_dir+'/'+class_vignettes[idx_choice])
-                    
-                    print(len(class_vignettes))
-                    print(class_vignettes[idx_choice])
-            
-                    rotated = vignette.rotate(r.randint(-180, 180))
-                    final = rotated
-
-                    # enhancer = ImageEnhance.Sharpness(final)
-                    # for i in range(4):
-                    #     factor = i
-                    #     enhancer.enhance(factor).show(f"Sharpness {factor:f}")
-                    # break
-
-                    final2 = Image.asarray(final)
-
-                    # Save final image in the training directory and its mirror in the testing directory
                     if r.randint(0, 1) == 1:
-                        final2.save(target_dir+'/'+augmented_prefix+experiments[1]+'/'+classdir+'/'+str(global_img_i)+'_conv'+img_extension)
+                        final.save(target_dir+'/'+augmented_prefix+expdirs[1]+'/'+classdir+'/'+str(name)+img_extension)
                     else:
-                        ImageOps.mirror(final2).save(target_dir+'/'+augmented_prefix+experiments[1]+'/'+classdir+'/'+str(global_img_i)+'_conv'+img_extension)
+                        ImageOps.mirror(final).save(target_dir+'/'+augmented_prefix+expdirs[1]+'/'+classdir+'/'+str(name)+img_extension)
+                    names.append(name)
 
-                    global_img_i += 1
+                    # global_img_i_train += 1
 
-print('global_img_i:', global_img_i)
+# print('global_img_i:', global_img_i)
 
-# for experiment in experiments:
+# for experiment in expdirs:
 #     # Create testing / training directories if they do not exist
 #     try:
 #         os.mkdir(experiment)
